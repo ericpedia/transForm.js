@@ -15,6 +15,7 @@
         inputs: ['input', 'select', 'textarea'],
         skipDisabled: true,
         skipFalsy: false,
+        skipFalsyInArrays: true,
         skipReadOnly: false,
         triggerChange: false,
         useIdOnEmptyName: true
@@ -35,14 +36,14 @@
             if (textKey = el.getAttribute(_defaults.attributeText)) {
                 var textEntry = getTextEntryFromInput(el, textKey);
                 if (isValidValue(textEntry.value, opts.skipFalsy))
-                    saveEntryToResult(result, textEntry, opts.delimiter);
+                    saveEntryToResult(result, textEntry, opts.delimiter, opts);
             }
             if (!isInput(el)) continue;
             if (!(key = (el.name || opts.useIdOnEmptyName && el.id))) continue;
             if (nodeCallback) entry = nodeCallback(el, key);
             if (!entry) entry = getEntryFromInput(el, key);
             if (isValidValue(entry.value, opts.skipFalsy))
-                saveEntryToResult(result, entry, opts.delimiter);
+                saveEntryToResult(result, entry, opts.delimiter, opts);
         }
         return result;
     }
@@ -124,9 +125,8 @@
         return result;
     }
 
-    function saveEntryToResult(parent, entry, delimiter) {
-        //Don't accept falsy values in array collections. Check name first, then value
-        if (/\[\]$/.test(entry.name) && !entry.value) return;
+    function saveEntryToResult(parent, entry, delimiter, options) {
+        if (options.skipFalsyInArrays && /\[\]$/.test(entry.name) && !entry.value) return;
         var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
             var part = parts[i];

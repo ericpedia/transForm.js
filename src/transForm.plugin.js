@@ -44,6 +44,7 @@ var test = $('div').transForm('serialize');
         skipDisabled: true,
         skipReadOnly: false,
         skipFalsy: false,
+        skipFalsyInArrays: false,
         useIdOnEmptyName: true,
         triggerChange: false
     };
@@ -70,7 +71,7 @@ var test = $('div').transForm('serialize');
             if (typeof entry.value === 'undefined' || entry.value === null
                 || (skipFalsy && (!entry.value || (isArray(entry.value) && !entry.value.length))))
                 continue;
-            saveEntryToResult(result, entry, input, delimiter);
+            saveEntryToResult(result, entry, input, delimiter, opts);
         }
         return result;
     }
@@ -131,9 +132,8 @@ var test = $('div').transForm('serialize');
         return result;
     }
 
-    function saveEntryToResult(parent, entry, input, delimiter) {
-        //not not accept falsy values in array collections
-        if (/\[\]$/.test(entry.name) && !entry.value) return;
+    function saveEntryToResult(parent, entry, input, delimiter, options) {
+        if (options.skipFalsyInArrays && /\[\]$/.test(entry.name) && !entry.value) return;
         var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
             var part = parts[i];
